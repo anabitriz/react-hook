@@ -1,8 +1,9 @@
 import { StatusBar } from 'expo-status-bar';
-import React from 'react';
+import React, {useState, useEffect}from 'react';
 import { StyleSheet, Text, View, Button, TextInput, Image, TouchableOpacity, FlatList} from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import axios from 'axios';
 
 const Stack = createNativeStackNavigator();
 
@@ -80,12 +81,26 @@ function HomeScreen({ navigation }) {
 }
 
 function ListaScreen({ navigation }) {
-  const [contatos] = React.useState([
-    { id: "1", nome: "Marcos Andrade", telefone: "81 988553424" },
-    { id: "2", nome: "Patrícia Tavares", telefone: "81 998765332" },
-    { id: "3", nome: "Rodrigo Antunes", telefone: "81 987765525" }
-  ]);
 
+const [contatos, setContatos] = useState([]);
+
+  function consultarDados() {
+  console.log("BUSCANDO...");
+
+  axios.get('http://192.168.0.110:3000/contatos')
+    .then(function (response) {
+      console.log("RESPOSTA:", response.data);
+      setContatos(response.data);
+    })
+    .catch(function (error) {
+      console.log(error);
+    });
+}
+ 
+useEffect(() => {
+  consultarDados();
+}, []);
+ 
   return (
     <View style={styles.screen}>
 
@@ -97,7 +112,7 @@ function ListaScreen({ navigation }) {
 
       <FlatList
         data={contatos}
-        keyExtractor={(item) => item.id}
+       keyExtractor={(item) => item.id.toString()}
         renderItem={({ item }) => (
           <TouchableOpacity
             style={styles.contatoCard}
@@ -155,9 +170,25 @@ function CadastroUseScreen({ navigation }) {
 }
 
 function CadastrarContScreen({ navigation }) {
+  
   const [nome, botarNome] = React.useState('');
   const [email, botarEmail] = React.useState('');
   const [telefone, botarTelefone] = React.useState('');
+
+
+  function inserirDados() {
+  axios.post('http://192.168.0.110:3000/contatos', {
+    nome: nome,
+    telefone: telefone
+  })
+    .then(function (response) {
+      console.log(response);
+      navigation.navigate("Listar");
+    })
+    .catch(function (error) {
+      console.log(error);
+    });
+}
 
   return (
     <View style={styles.screen}>
@@ -173,9 +204,9 @@ function CadastrarContScreen({ navigation }) {
       <TextInput style={styles.input} value={telefone} onChangeText={botarTelefone} />
 
       <Button
-        title="Salvar"
-        onPress={() => navigation.navigate("Listar")}
-      />
+  title="Salvar"
+  onPress={inserirDados}
+/>
     </View>
   );
 }
@@ -185,6 +216,32 @@ function EditarScreen({ route, navigation }) {
 
   const [nome, botarNome] = React.useState(contato.nome);
   const [telefone, botarTelefone] = React.useState(contato.telefone);
+
+
+  function alterarDados() {
+  axios.put('http://192.168.0.110:3000/contatos/' + contato.id, {
+    nome: nome,
+    telefone: telefone
+  })
+    .then(function (response) {
+      console.log(response);
+      navigation.navigate("Listar");
+    })
+    .catch(function (error) {
+      console.log(error);
+    });
+}
+
+function excluirDados() {
+  axios.delete('http://192.168.0.110:3000/contatos/' + contato.id)
+    .then(function (response) {
+      console.log(response);
+      navigation.navigate("Listar");
+    })
+    .catch(function (error) {
+      console.log(error);
+    });
+}
 
   return (
     <View style={styles.screen}>
@@ -197,16 +254,17 @@ function EditarScreen({ route, navigation }) {
       <Text style={styles.label}>  Telefone</Text>
       <TextInput style={styles.input} value={telefone} onChangeText={botarTelefone} />
 
-      <Button
-        title="Alterar"
-        onPress={() => navigation.navigate("Listar")}
-      />
 
-      <Button
-        title="Excluir"
-        color="red"
-        onPress={() => navigation.navigate("Listar")}
-      />
+<Button
+  title="Alterar"
+  onPress={alterarDados}
+/>
+
+<Button
+  title="Excluir"
+  color="red"
+  onPress={excluirDados}
+/>
       
     </View>
   );
