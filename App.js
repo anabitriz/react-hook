@@ -82,12 +82,13 @@ function HomeScreen({ navigation }) {
 
 function ListaScreen({ navigation }) {
 
+  
+
 const [contatos, setContatos] = useState([]);
 
   function consultarDados() {
-  console.log("BUSCANDO...");
 
-  axios.get('http://192.168.0.110:3000/contatos')
+  axios.get('http://localhost:3000/contatos')
     .then(function (response) {
       console.log("RESPOSTA:", response.data);
       setContatos(response.data);
@@ -177,7 +178,7 @@ function CadastrarContScreen({ navigation }) {
 
 
   function inserirDados() {
-  axios.post('http://192.168.0.110:3000/contatos', {
+  axios.post('http://localhost:3000/contatos', {
     nome: nome,
     telefone: telefone
   })
@@ -219,7 +220,7 @@ function EditarScreen({ route, navigation }) {
 
 
   function alterarDados() {
-  axios.put('http://192.168.0.110:3000/contatos/' + contato.id, {
+  axios.put('http://localhost:3000/contatos/' + contato.id, {
     nome: nome,
     telefone: telefone
   })
@@ -233,7 +234,7 @@ function EditarScreen({ route, navigation }) {
 }
 
 function excluirDados() {
-  axios.delete('http://192.168.0.110:3000/contatos/' + contato.id)
+  axios.delete('http://localhost:3000/contatos/' + contato.id)
     .then(function (response) {
       console.log(response);
       navigation.navigate("Listar");
