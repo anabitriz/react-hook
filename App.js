@@ -38,6 +38,33 @@ function HomeScreen({ navigation }) {
   const [email, botarEmail] = React.useState('');
   const [senha, botarSenha] = React.useState('');
 
+
+ function login() {
+    if (!email || !senha) {
+        alert('Preencha email e senha');
+        return;
+    }
+
+    axios.get('http://localhost:3000/usuarios')
+        .then(function (response) {
+
+            const usuario = response.data.find(user =>
+                user.email === email.trim() &&
+                user.senha === senha.trim()
+            );
+
+            if (usuario) {
+                navigation.navigate('Listar');
+            } else {
+                alert('Email ou senha inválidos');
+            }
+        })
+        .catch(function (error) {
+            console.log(error);
+            alert('Erro ao conectar à API');
+        });
+}
+  
   return (
     <View style={styles.homeContainer}>
       <Image
@@ -64,7 +91,7 @@ function HomeScreen({ navigation }) {
       <Button
         color="#0a62e7"
         title="                       Logar                      "
-        onPress={() => navigation.navigate("Listar")}
+        onPress={login}
       />
 
       <Text> </Text>
@@ -150,7 +177,9 @@ function CadastroUseScreen({ navigation }) {
     function inserirDados() {
   axios.post('http://localhost:3000/usuarios', {
     nome: nome,
-    telefone: telefone
+    email:email,
+    cpf: cpf,
+    senha: senha
   })
     .then(function (response) {
       console.log(response);
@@ -198,6 +227,7 @@ function CadastrarContScreen({ navigation }) {
     .then(function (response) {
       console.log(response);
       navigation.navigate("Listar");
+      alert('contatoo adicionado');
     })
     .catch(function (error) {
       console.log(error);
@@ -242,6 +272,8 @@ function EditarScreen({ route, navigation }) {
     .then(function (response) {
       console.log(response);
       navigation.navigate("Listar");
+      alert('alterado com sucesso!');
+
     })
     .catch(function (error) {
       console.log(error);
@@ -253,6 +285,9 @@ function excluirDados() {
     .then(function (response) {
       console.log(response);
       navigation.navigate("Listar");
+      
+          alert('usuário excluído');
+      
     })
     .catch(function (error) {
       console.log(error);
@@ -288,6 +323,7 @@ function excluirDados() {
 
 export default function App() {
   return (
+    
     <NavigationContainer>
       <Stack.Navigator screenOptions={{ headerShown: false }}>
         <Stack.Screen name="Home" component={HomeScreen} />
